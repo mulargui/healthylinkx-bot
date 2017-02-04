@@ -6,10 +6,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -qq update && apt-get -y -qq install 
 	nodejs-legacy \
 	npm
 	
-RUN npm install -g --save \
+RUN npm install --save \
 	botkit
 
-ENV NODE_PATH=/usr/local/lib/node_modules:$NODE_PATH
+ENV NODE_PATH=/usr/local/lib/node_modules
  
 EXPOSE 80
 
