@@ -44,8 +44,13 @@ controller.on('direct_message',function(bot,message) {
   bot.reply(message,'You are talking directly to me');
 });
 
+// reply to a direct message
+controller.on('ambient',function(bot,message) {
+  bot.reply(message,'Hearing you guys');
+});
+
 // give the bot something to listen for.
-/*controller.hears(['hello', 'hi'], ['direct_message','direct_mention','mention'], function(bot,message) {
+/*controller.hears(['hello', 'hi'], ['direct_message','direct_mention','mention', 'ambient'], function(bot,message) {
 	console.log("Message received");	
 	bot.reply(message,'Hello yourself.');
 });*/
