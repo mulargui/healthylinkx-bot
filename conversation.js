@@ -1,8 +1,9 @@
 
 var Botkit = require('botkit');
+var microservice = require("./microservice"); 
 
 // all the variables to store the data of the conversation
-var zipcode, lastname, distance, gender, speciality;
+var zipcode, lastname, distance, gender, specialty;
 
 step0 = function(response, convo) {
 	convo.ask('Looking for a doctor? (yes/no)', [
@@ -138,7 +139,7 @@ step4 = function(response, convo) {
 }
 
 step5 = function(response, convo) {
-	convo.ask('Include the speciality you are looking for (or no to finish)', [
+	convo.ask('Include the specialty you are looking for (or no to finish)', [
 	{
 		pattern: 'no',
 		callback: function(response,convo) {
@@ -147,10 +148,20 @@ step5 = function(response, convo) {
 		}
 	},
 	{
+		pattern: 'nada',
+		callback: function(response,convo) {
+			specialty='';
+			var str = microservice.getSearchResults(zipcode, lastname, distance, gender, specialty);
+			convo.say('result: ' + str);
+			convo.next();
+		}
+	},
+	{
 		default: true,
 		callback: function(response,convo) {
-			speciality=response.text;
-			result(response, convo);
+			specialty=response.text;
+			var str = microservice.getSearchResults(zipcode, lastname, distance, gender, specialty);
+			convo.say('result: ' + str);
 			convo.next();
 		}
 	}]);
@@ -162,5 +173,5 @@ result = function(response, convo) {
 	convo.say('Distance: ' + distance);
 	convo.say('Gender: ' + gender);
 	convo.say('Lastname: ' + lastname);
-	convo.say('Speciality: ' + speciality);
+	convo.say('Speciality: ' + specialty);
 }
