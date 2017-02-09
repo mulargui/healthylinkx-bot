@@ -7,7 +7,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -qq update && apt-get -y -qq install 
 	npm
 	
 RUN npm install --save \
-	botkit
+	botkit \
+	promise
 
 ENV NODE_PATH=/usr/local/lib/node_modules
  

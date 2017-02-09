@@ -1,11 +1,19 @@
-var API_URL_PREFIX = "http://192.168.1.103:8081"; //android phones doesn't like localhost
-//var API_URL_PREFIX = "http://127.0.0.1:8081";
+//var API_URL_PREFIX = "http://192.168.1.103/"; //android phones doesn't like localhost
+//var API_URL_PREFIX = "http://127.0.0.1/";
+var API_URL_PREFIX = 'NODEJSAPI'; //linking to the microservice container
 var methodseparator="?"
 
-//var API_URL_PREFIX = "http://127.0.0.1:8081/api.php?rquest=";
+//var API_URL_PREFIX = "http://127.0.0.1/api.php?rquest=";
 //var methodseparator="&"
 
+var portnumber = 8081;
 var paramseparator="&"
+
+/////////// exporting the entry point to the search code
+exports.getSearchResults=getSearchResults;
+//////////
+
+var Promise = require('promise');
 
 function getSearchResults(zipcode, lastname, distance, gender, specialty) {
 	var requeststring = "/providers";
@@ -67,44 +75,54 @@ function getSearchResults(zipcode, lastname, distance, gender, specialty) {
 	}
 	
  	//lets get a few doctors
-	var responsestring="";
-	var resultstring="\tName\t\t\tStreet\t\t\tCity\n";
+	return getContent(requeststring).then(format);
+	//.then (console.log);
+}
+
+function format(responsestring) {
+	//translate json from string to array
+	var responsejson = JSON.parse(responsestring);
+	var length=responsejson.length;
+	var result='Doctor\tAddress\tCity\n';
+
+	//format the data 
+	for (var i=0; i<length;i++){
+ 		//result += responsejson[i].NPI +'\t';
+ 		result += responsejson[i].Provider_Full_Name +'\t';
+ 		result += responsejson[i].Provider_Full_Street +'\t';
+ 		result += responsejson[i].Provider_Full_City +'\n';
+	}
+	return result;
+}
+
+function getContent(requeststring) {
 
 	var options = {
   		host: API_URL_PREFIX,
+		port: portnumber,
   		path: requeststring
  	};
 
-	var req = require("http").request(options, function(res) {
-		res.setEncoding('utf8');
-		res.on('data', function (chunk) {
-			responsestring += chunk;
-		});
+	var responsestring="";
 
-		res.on('error', function(e) {
-			throw e;
-		});	
+	return new Promise (function(resolve,reject){
+		var req = require("http").request(options, function(res) {
+			res.setEncoding('utf8');
+			res.on('data', function (chunk) {
+				responsestring += chunk;
+			});
 
-		res.on('end', function() {
+			res.on('error', function(e) {
+				return reject(e);
+			});	
 
-			//no data
-  			if (!responsestring) {	
-				resultstring += 'No matching providers were found.\n';
-				return resultstring;
- 			}
-			/*$.each(data, function(i, item) {
-				$.each(item, function(j, field) {
-					resultstring += field+"\t"; 
-				});
-				resultstring += "\n";
-			});*/
-			resultstring += responsestring;
-			return resultstring;
-		});
-	}).end();	
+			res.on('end', function() {
+				//no data
+				if (!responsestring) {	
+					return resolve('');
+				}
+				return resolve(responsestring);
+			});
+		}).end();
+	})	
 }
-
-/////////// exporting the entry point to the search code
-exports.getSearchResults=getSearchResults;
-//////////
-

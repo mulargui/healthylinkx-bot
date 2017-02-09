@@ -2,10 +2,14 @@
 var Botkit = require('botkit');
 var microservice = require("./microservice"); 
 
+/////////// exporting the entry point to the conversation
+exports.step0=step0;
+//////////
+
 // all the variables to store the data of the conversation
 var zipcode, lastname, distance, gender, specialty;
 
-step0 = function(response, convo) {
+function step0(response, convo) {
 	convo.ask('Looking for a doctor? (yes/no)', [
 	{
 		pattern: 'yes',
@@ -31,11 +35,7 @@ step0 = function(response, convo) {
 	}]);
 }
 
-/////////// exporting the entry point to the conversation
-exports.step0=step0;
-//////////
-
-step1 = function(response, convo) {
+function step1(response, convo) {
 	convo.ask('Great!\nWe only cover Washington State.\nWhich Zip code are you interested on (or no to finish)?', [
 	{
 		pattern: 'no',
@@ -54,7 +54,7 @@ step1 = function(response, convo) {
 	}]);
 }
 
-step2 = function(response, convo) {
+function step2(response, convo) {
 	convo.ask('Which is max distance you are happy to go in miles (or no to finish)?', [
 	{
 		pattern: 'no',
@@ -73,7 +73,7 @@ step2 = function(response, convo) {
 	}]);
 }
 
-step3 = function(response, convo) {
+function step3(response, convo) {
 	convo.ask('Do you have a gender preference (yes/no)?', [
 	{
 		pattern: 'no',
@@ -92,7 +92,7 @@ step3 = function(response, convo) {
 	}]);
 }
 
-step31 = function(response, convo) {
+function step31(response, convo) {
 	convo.ask('Do you prefere a Male or Female doctor (or no to finish)?', [
 	{
 		pattern: 'no',
@@ -119,7 +119,7 @@ step31 = function(response, convo) {
 	}]);
 }
 
-step4 = function(response, convo) {
+function step4(response, convo) {
 	convo.ask('Include the lastname of the doctor if you know it (or no to finish)', [
 	{
 		pattern: 'no',
@@ -138,7 +138,7 @@ step4 = function(response, convo) {
 	}]);
 }
 
-step5 = function(response, convo) {
+function step5(response, convo) {
 	convo.ask('Include the specialty you are looking for (or no to finish)', [
 	{
 		pattern: 'no',
@@ -151,23 +151,27 @@ step5 = function(response, convo) {
 		pattern: 'nada',
 		callback: function(response,convo) {
 			specialty='';
-			var str = microservice.getSearchResults(zipcode, lastname, distance, gender, specialty);
-			convo.say('result: ' + str);
-			convo.next();
+			microservice.getSearchResults(zipcode, lastname, distance, gender, specialty)
+				.then( function(res) {
+					convo.say(res);
+					convo.next();
+				});
 		}
 	},
 	{
 		default: true,
 		callback: function(response,convo) {
 			specialty=response.text;
-			var str = microservice.getSearchResults(zipcode, lastname, distance, gender, specialty);
-			convo.say('result: ' + str);
-			convo.next();
+			microservice.getSearchResults(zipcode, lastname, distance, gender, specialty)
+				.then( function(res) {
+					convo.say(res);
+					convo.next();
+				});
 		}
 	}]);
 }
 
-result = function(response, convo) {
+function result(response, convo) {
 	convo.say('Ok! This is what we know');
 	convo.say('Zipcode: ' + zipcode);
 	convo.say('Distance: ' + distance);
