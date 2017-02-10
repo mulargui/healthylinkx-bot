@@ -83,8 +83,12 @@ function format(responsestring) {
 	//translate json from string to array
 	var responsejson = JSON.parse(responsestring);
 	var length=responsejson.length;
-	var result='Doctor\tAddress\tCity\n';
 
+	// no data
+	if (length == 0)
+		return ('Sorry! We couldn\'t find any doctor. Try a different question');
+	
+	var result='Doctor\tAddress\tCity\n';
 	//format the data 
 	for (var i=0; i<length;i++){
  		//result += responsejson[i].NPI +'\t';
